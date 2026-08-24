@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Início | Minha Rede Social</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="cabecalho">
+    <h2 class="logo">Minha Rede Social</h2>
+
+    <div class="area-direita-cabecalho">
+      <div class="notificacoes-wrapper">
+        <button id="btn-notificacoes" class="botao-sino" title="Solicitações de amizade">
+          🔔
+          <span id="contador-notificacoes" class="contador-notificacoes" hidden>0</span>
+        </button>
+
+        <div id="painel-notificacoes" class="painel-notificacoes" hidden>
+          <h4>Solicitações de amizade</h4>
+          <div id="lista-notificacoes">
+            <p class="texto-vazio">Nenhuma solicitação pendente.</p>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-sair" class="botao-secundario">Sair</button>
+    </div>
+  </header>
+
+  <main class="conteudo-principal">
+
+    <!-- COLUNA ESQUERDA: PERFIL -->
+    <section class="cartao perfil">
+      <h3>Meu perfil</h3>
+
+      <img id="foto-perfil-atual" class="foto-perfil" src="https://via.placeholder.com/120?text=Foto" alt="Foto de perfil">
+
+      <p id="nome-perfil" class="nome-perfil">Carregando...</p>
+
+      <form id="form-perfil">
+        <label for="input-foto-perfil">Trocar foto de perfil</label>
+        <input type="file" id="input-foto-perfil" accept="image/*">
+
+        <label for="descricao-perfil">Descrição</label>
+        <textarea id="descricao-perfil" rows="3" placeholder="Fale um pouco sobre você..."></textarea>
+
+        <button type="submit" class="botao-primario">Salvar perfil</button>
+      </form>
+      <p id="mensagem-perfil" class="mensagem-sucesso" hidden></p>
+    </section>
+
+    <!-- COLUNA CENTRAL: POSTS -->
+    <section class="cartao area-posts">
+      <h3>Criar publicação</h3>
+      <form id="form-post">
+        <label for="input-foto-post">Foto</label>
+        <input type="file" id="input-foto-post" accept="image/*" required>
+
+        <label for="descricao-post">Descrição</label>
+        <textarea id="descricao-post" rows="2" placeholder="O que você está pensando?" required></textarea>
+
+        <button type="submit" class="botao-primario">Publicar</button>
+      </form>
+
+      <h3>Feed</h3>
+      <div id="lista-posts" class="lista-posts">
+        <p>Carregando publicações...</p>
+      </div>
+    </section>
+
+    <!-- COLUNA DIREITA: BUSCA DE AMIGOS -->
+    <section class="cartao busca-amigos">
+      <h3>Buscar amigos</h3>
+      <input type="text" id="input-busca" placeholder="Digite o nome da pessoa">
+      <button id="btn-buscar" class="botao-secundario">Buscar</button>
+
+      <div id="resultado-busca" class="resultado-busca"></div>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: #f0f0f0;
+  color: #222;
+}
+
+/* ---------- TELAS DE LOGIN / CADASTRO ---------- */
+
+.tela-centralizada {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.cartao {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 100%;
+  max-width: 90%;
+  /*max-width: 380px;*/
+}
+
+.cartao h1 {
+  margin-top: 0;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+input, textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.botao-primario {
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4a4a4a;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.botao-primario:hover {
+  opacity: 0.9;
+}
+
+.botao-secundario {
+  padding: 8px 14px;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.texto-secundario {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.mensagem-erro {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.mensagem-sucesso {
+  background: #e6f4ea;
+  color: #1e7b34;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ---------- TELA PRINCIPAL (HOME) ---------- */
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 12px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  margin: 0;
+}
+
+.area-direita-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notificacoes-wrapper {
+  position: relative;
+}
+
+.botao-sino {
+  position: relative;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.contador-notificacoes {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #d93025;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.contador-notificacoes[hidden]{
+  display:none;
+}
+
+.painel-notificacoes {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  width: 300px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  padding: 14px;
+  z-index: 20;
+}
+
+.painel-notificacoes h4 {
+  margin: 0 0 10px 0;
+}
+
+.texto-vazio {
+  font-size: 13px;
+  color: #777;
+}
+
+.item-notificacao {
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+
+.item-notificacao:last-child {
+  border-bottom: none;
+}
+
+.item-notificacao .nome-solicitante {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.item-notificacao .botoes-notificacao {
+  display: flex;
+  gap: 8px;
+}
+
+.item-notificacao button {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-aceitar {
+  border: none;
+  background-color: #1e7b34;
+  color: #fff;
+}
+
+.btn-recusar {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #444;
+}
+
+.conteudo-principal {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 16px;
+  padding: 16px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .conteudo-principal {
+    grid-template-columns: 1fr;
+  }
+}
+
+.perfil {
+  text-align: center;
+}
+
+.foto-perfil {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 10px 0;
+}
+
+.nome-perfil {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.area-posts h3:not(:first-child) {
+  margin-top: 24px;
+}
+
+.lista-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.post {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  background-color:rgba(241, 224, 199, 0.425);
+
+}
+
+.post img {
+  display: block;/* Transforma a imagem em um elemento de bloco.Isso permite usar margin: auto para centralizá-la. */
+  max-width: 100%;/* Nunca deixa a imagem ficar mais larga que o container pai.Se a tela diminuir, a imagem diminui junto. */
+  width: auto;/* Mantém a largura original da imagem quando houver espaço.Não força a imagem a ocupar 100% da largura disponível. */
+  height: auto;/* Ajusta a altura automaticamente para manter a proporçãooriginal da imagem e evitar deformações. */
+  margin: 0 auto 8px;
+/* Define as margens:topo: 0
+direita: auto
+inferior: 8px
+esquerda: auto
+As margens laterais em 'auto' centralizam a imagem
+horizontalmente dentro do container. */
+}
+
+.post .foto-autor {
+    
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.post .autor-post {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.busca-amigos input {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.resultado-busca {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item-usuario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.item-usuario button {
+  font-size: 12px;
+  padding: 6px 10px;
+}
