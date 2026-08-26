@@ -132,11 +132,31 @@ document.getElementById("form-post").addEventListener("submit", async (evento) =
 async function carregarFeed() {
   const listaPosts = document.getElementById("lista-posts");
 
+  const { data: amizades, error: erroAmizades } = await supabaseClient
+    .from("friend_requests")
+    .select("from_user, to_user")
+    .eq("status", "aceito")
+    .or(`from_user.eq.${usuarioAtual.id},to_user.eq.${usuarioAtual.id}`);
+
+  if (erroAmizades) {
+    listaPosts.innerHTML = `<p>Erro ao carregar publicações.</p>`;
+    console.error("Erro ao carregar amizades:", erroAmizades.message);
+    return;
+  }
+
+  const idsPermitidos = new Set([usuarioAtual.id]);
+  amizades.forEach((amizade) => {
+    idsPermitidos.add(
+      amizade.from_user === usuarioAtual.id ? amizade.to_user : amizade.from_user
+    );
+  });
+
   // Busca os posts junto com o nome do autor (join com profiles)
   const { data: posts, error } = await supabaseClient
     .from("posts")
     //.select("id, foto_url, descricao, created_at, profiles ( nome )")
-    .select("id, foto_url, descricao, created_at, profiles ( nome,foto_url )")
+    .select("id, user_id, foto_url, descricao, created_at, profiles ( nome,foto_url )")
+    .in("user_id", [...idsPermitidos])
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -155,9 +175,12 @@ async function carregarFeed() {
     .map(
       (post) => `
       <div class="post">
-        <div class="autor-post">
-        <img class="foto-autor" src="${post.profiles?.foto_url ?? 'https://via.placeholder.com/40'}" alt="Foto do autor">
-        ${post.profiles?.nome ?? "Usuário"}
+        <div class="cabecalho-post">
+          <div class="autor-post">
+            <img class="foto-autor" src="${post.profiles?.foto_url ?? 'https://via.placeholder.com/40'}" alt="Foto do autor">
+            <a class="link-autor" href="perfil.html?id=${encodeURIComponent(post.user_id)}">${post.profiles?.nome ?? "Usuário"}</a>
+          </div>
+          <time class="data-post" datetime="${post.created_at}">${formatarDataPost(post.created_at)}</time>
         </div>
         <p>${post.descricao}</p>
         <img src="${post.foto_url}" alt="Foto do post">
@@ -166,6 +189,16 @@ async function carregarFeed() {
     `
     )
     .join("");
+}
+
+function formatarDataPost(dataPost) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(dataPost));
 }
 
 // ---------- BUSCA DE AMIGOS ----------

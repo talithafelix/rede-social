@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil | Minha Rede Social</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="cabecalho">
+    <h2 class="logo">Minha Rede Social</h2>
+    <a class="botao-secundario" href="home.html">Voltar ao feed</a>
+  </header>
+
+  <main class="pagina-perfil-publico">
+    <section class="cartao perfil-publico">
+      <img id="foto-perfil-publico" class="foto-perfil" src="https://via.placeholder.com/120?text=Foto" alt="Foto de perfil">
+      <h1 id="nome-perfil-publico">Carregando...</h1>
+      <p id="descricao-perfil-publico"></p>
+    </section>
+
+    <section class="area-posts perfil-posts">
+      <h2>Publicacoes</h2>
+      <div id="lista-posts-perfil" class="lista-posts">
+        <p>Carregando publicacoes...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/perfil.js"></script>
+</body>
+</html>
