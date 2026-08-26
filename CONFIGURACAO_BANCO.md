@@ -49,6 +49,26 @@ create table friend_requests (
   status text default 'pendente', -- pendente | aceito | recusado
   created_at timestamp with time zone default now()
 );
+
+-- Tabela de reações dos posts
+create table post_reactions (
+  id uuid default gen_random_uuid() primary key,
+  post_id uuid references posts(id) on delete cascade not null,
+  user_id uuid references profiles(id) on delete cascade not null,
+  reaction_type text not null check (reaction_type in ('joia', 'deslike', 'coracao', 'impressionado')),
+  created_at timestamp with time zone default now(),
+  unique (post_id, user_id)
+);
+
+-- Tabela de notificações
+create table notifications (
+  id uuid default gen_random_uuid() primary key,
+  recipient_id uuid references profiles(id) on delete cascade not null,
+  from_user uuid references profiles(id) on delete cascade not null,
+  post_id uuid references posts(id) on delete cascade not null,
+  message text not null,
+  created_at timestamp with time zone default now()
+);
 ```
 
 ## 4. Ativar a segurança (RLS) e criar as regras de acesso
@@ -61,6 +81,8 @@ leia ou apague os dados de todo mundo). Rode este segundo bloco no SQL Editor:
 alter table profiles enable row level security;
 alter table posts enable row level security;
 alter table friend_requests enable row level security;
+alter table post_reactions enable row level security;
+alter table notifications enable row level security;
 
 -- PROFILES: qualquer pessoa logada pode ver todos os perfis (pra busca funcionar)
 create policy "Perfis são visíveis para todos os logados"
@@ -102,6 +124,33 @@ create policy "Destinatário responde à solicitação"
   on friend_requests for update
   using (auth.uid() = to_user)
   with check (auth.uid() = to_user);
+
+-- POST_REACTIONS: usuário vê e gerencia apenas as próprias reações
+create policy "Usuário vê as próprias reações"
+  on post_reactions for select
+  using (auth.uid() = user_id);
+
+create policy "Usuário reage aos posts"
+  on post_reactions for insert
+  with check (auth.uid() = user_id);
+
+create policy "Usuário altera a própria reação"
+  on post_reactions for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Usuário remove a própria reação"
+  on post_reactions for delete
+  using (auth.uid() = user_id);
+
+-- NOTIFICATIONS: cada usuário lê as notificações recebidas
+create policy "Usuário vê suas notificações"
+  on notifications for select
+  using (auth.uid() = recipient_id);
+
+create policy "Usuário cria notificações de reação"
+  on notifications for insert
+  with check (auth.uid() = from_user);
 ```
 
 ## 5. Criar o perfil automaticamente no cadastro (gatilho)

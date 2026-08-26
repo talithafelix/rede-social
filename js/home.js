@@ -1,4 +1,5 @@
 let usuarioAtual = null;
+let nomeUsuarioAtual = "Alguém";
 
 // ---------- INICIALIZAÇÃO ----------
 (async () => {
@@ -37,6 +38,7 @@ async function carregarPerfil() {
   }
 
   document.getElementById("nome-perfil").textContent = perfil.nome;
+  nomeUsuarioAtual = perfil.nome;
   document.getElementById("descricao-perfil").value = perfil.descricao || "";
 
   if (perfil.foto_url) {
@@ -170,6 +172,21 @@ async function carregarFeed() {
     return;
   }
 
+  const postIds = posts.map((post) => post.id);
+  const { data: reacoes, error: erroReacoes } = await supabaseClient
+    .from("post_reactions")
+    .select("post_id, reaction_type")
+    .eq("user_id", usuarioAtual.id)
+    .in("post_id", postIds);
+
+  if (erroReacoes) {
+    console.error("Erro ao carregar reações:", erroReacoes.message);
+  }
+
+  const reacoesDoUsuario = new Map(
+    (reacoes || []).map((reacao) => [reacao.post_id, reacao.reaction_type])
+  );
+
 //Montagem do post no HTML
   listaPosts.innerHTML = posts
     .map(
@@ -184,11 +201,102 @@ async function carregarFeed() {
         </div>
         <p>${post.descricao}</p>
         <img src="${post.foto_url}" alt="Foto do post">
+        <div class="reacoes-post" aria-label="Reações da publicação">
+          ${criarBotoesReacao(post.id, reacoesDoUsuario.get(post.id))}
+        </div>
         
       </div>
     `
     )
     .join("");
+}
+
+function criarBotoesReacao(idPost, reacaoAtual) {
+  const reacoes = [
+    ["joia", "👍", "Joia"],
+    ["deslike", "👎", "Não gostei"],
+    ["coracao", "❤️", "Coração"],
+    ["impressionado", "😮", "Impressionado"],
+  ];
+
+  return reacoes.map(([tipo, icone, descricao]) => `
+    <button class="botao-reacao${reacaoAtual === tipo ? " selecionado" : ""}"
+      type="button" title="${descricao}" aria-label="${descricao}"
+      onclick="reagirAoPost('${idPost}', '${tipo}', this)">${icone}</button>
+  `).join("");
+}
+
+async function reagirAoPost(idPost, tipoReacao, botao) {
+  const { data: reacaoExistente, error: erroBusca } = await supabaseClient
+    .from("post_reactions")
+    .select("id, reaction_type")
+    .eq("post_id", idPost)
+    .eq("user_id", usuarioAtual.id)
+    .maybeSingle();
+
+  if (erroBusca) {
+    alert("Erro ao verificar sua reação: " + erroBusca.message);
+    return;
+  }
+
+  let tipoNotificacao = tipoReacao;
+
+  if (reacaoExistente?.reaction_type === tipoReacao) {
+    const { error } = await supabaseClient
+      .from("post_reactions")
+      .delete()
+      .eq("id", reacaoExistente.id);
+
+    if (error) {
+      alert("Erro ao remover reação: " + error.message);
+      return;
+    }
+    tipoNotificacao = null;
+  } else {
+    const { error } = await supabaseClient
+      .from("post_reactions")
+      .upsert(
+        { post_id: idPost, user_id: usuarioAtual.id, reaction_type: tipoReacao },
+        { onConflict: "post_id,user_id" }
+      );
+
+    if (error) {
+      alert("Erro ao reagir ao post: " + error.message);
+      return;
+    }
+  }
+
+  const botoes = botao.closest(".reacoes-post").querySelectorAll(".botao-reacao");
+  botoes.forEach((item) => item.classList.remove("selecionado"));
+  if (tipoNotificacao) botao.classList.add("selecionado");
+
+  if (tipoNotificacao) await criarNotificacao(idPost, tipoNotificacao);
+}
+
+async function criarNotificacao(idPost, tipoReacao) {
+  const { data: post, error: erroPost } = await supabaseClient
+    .from("posts")
+    .select("user_id")
+    .eq("id", idPost)
+    .single();
+
+  if (erroPost || post.user_id === usuarioAtual.id) return;
+
+  const mensagens = {
+    joia: "deu uma joia no seu post",
+    deslike: "não gostou do seu post",
+    coracao: "deu um coração no seu post",
+    impressionado: "ficou impressionado com o seu post",
+  };
+
+  const { error } = await supabaseClient.from("notifications").insert({
+    recipient_id: post.user_id,
+    from_user: usuarioAtual.id,
+    post_id: idPost,
+    message: `${nomeUsuarioAtual} ${mensagens[tipoReacao]}`,
+  });
+
+  if (error) console.error("Erro ao criar notificação:", error.message);
 }
 
 function formatarDataPost(dataPost) {
@@ -291,22 +399,34 @@ async function carregarSolicitacoes() {
     return;
   }
 
+  const { data: notificacoes, error: erroNotificacoes } = await supabaseClient
+    .from("notifications")
+    .select("id, message, created_at")
+    .eq("recipient_id", usuarioAtual.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (erroNotificacoes) {
+    console.error("Erro ao carregar notificações:", erroNotificacoes.message);
+  }
+
   // Atualiza o contador no sino
-  if (solicitacoes.length > 0) {
-    contadorNotificacoes.textContent = solicitacoes.length;
+  const totalNotificacoes = solicitacoes.length + (notificacoes || []).length;
+  if (totalNotificacoes > 0) {
+    contadorNotificacoes.textContent = totalNotificacoes;
     contadorNotificacoes.hidden = false;
   } else {
     contadorNotificacoes.hidden = true;
   }
 
   // Atualiza a lista dentro do painel
-  if (solicitacoes.length === 0) {
+  if (solicitacoes.length === 0 && (!notificacoes || notificacoes.length === 0)) {
     listaNotificacoes.innerHTML = `<p class="texto-vazio">Nenhuma solicitação pendente.</p>`;
     return;
   }
 
-  listaNotificacoes.innerHTML = solicitacoes
-    .map(
+  listaNotificacoes.innerHTML = [
+    ...solicitacoes.map(
       (solicitacao) => `
       <div class="item-notificacao">
         <div class="nome-solicitante"><strong>${solicitacao.profiles?.nome ?? "Alguém"}</strong> quer te adicionar</div>
@@ -316,7 +436,16 @@ async function carregarSolicitacoes() {
         </div>
       </div>
     `
-    )
+    ),
+    ...(notificacoes || []).map(
+      (notificacao) => `
+      <div class="item-notificacao">
+        <div class="nome-solicitante">${notificacao.message}</div>
+        <time class="data-notificacao" datetime="${notificacao.created_at}">${formatarDataPost(notificacao.created_at)}</time>
+      </div>
+    `
+    ),
+  ]
     .join("");
 }
 
