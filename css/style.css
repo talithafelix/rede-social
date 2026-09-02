@@ -261,6 +261,14 @@ input, textarea {
   border-radius: 50%;
   object-fit: cover;
   margin: 10px 0;
+  transition: transform 0.3s ease;
+}
+
+.foto-perfil:hover,
+.post .foto-autor:hover {
+  position: relative;
+  z-index: 1;
+  transform: scale(1.5);
 }
 
 .nome-perfil {
@@ -322,6 +330,7 @@ horizontalmente dentro do container. */
   object-fit: cover;
   margin: 0;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
 
 .post .autor-post {

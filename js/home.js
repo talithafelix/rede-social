@@ -76,6 +76,8 @@ document.getElementById("form-perfil").addEventListener("submit", async (evento)
     document.getElementById("foto-perfil-atual").src = fotoUrl;
   }
 
+ 
+
   const dadosAtualizados = { descricao };
   if (fotoUrl) dadosAtualizados.foto_url = fotoUrl;
 
